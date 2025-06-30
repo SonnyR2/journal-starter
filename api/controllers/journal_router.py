@@ -44,19 +44,25 @@ async def create_entry(request: Request, entry: dict, entry_service: EntryServic
 # TODO: Implement GET /entries endpoint to list all journal entries
 # Example response: [{"id": "123", "work": "...", "struggle": "...", "intention": "..."}]
 @router.get("/entries")
-async def get_all_entries(request: Request):
+async def get_all_entries(entry_service: EntryService = Depends(get_entry_service)):
     # TODO: Implement get all entries endpoint
     # Hint: Use PostgresDB and EntryService like other endpoints
-    pass
+    enteries = entry_service.get_all_entries
+    return enteries
 
 @router.get("/entries/{entry_id}")
-async def get_entry(request: Request, entry_id: str):
+async def get_entry(entry_id: str, entry_service: EntryService = Depends(get_entry_service)):
     # TODO: Implement get single entry endpoint
     # Hint: Return 404 if entry not found
-    pass
+    result = entry_service.get_entry(entry_id)
+    if not result:
+
+        raise HTTPException(status_code=404, detail="Entry not found")
+    
+    return result
 
 @router.patch("/entries/{entry_id}")
-async def update_entry(request: Request, entry_id: str, entry_update: dict):
+async def update_entry(entry_id: str, entry_update: dict):
     async with PostgresDB() as db:
         entry_service = EntryService(db)
         result = await entry_service.update_entry(entry_id, entry_update)
@@ -69,10 +75,15 @@ async def update_entry(request: Request, entry_id: str, entry_update: dict):
 # TODO: Implement DELETE /entries/{entry_id} endpoint to remove a specific entry
 # Return 404 if entry not found
 @router.delete("/entries/{entry_id}")
-async def delete_entry(request: Request, entry_id: str):
+async def delete_entry(entry_id: str, entry_service: EntryService = Depends(get_entry_service)):
     # TODO: Implement delete entry endpoint
     # Hint: Return 404 if entry not found
-    pass
+    delete = entry_service.delete_entry(entry_id)
+    if not delete:
+
+        raise HTTPException(status_code=404, detail="Entry not found")
+
+    return {"message": "Entry deleted successfully"}
 
 @router.delete("/entries")
 async def delete_all_entries(request: Request):
