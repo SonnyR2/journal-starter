@@ -19,7 +19,7 @@ async def get_entry_service() -> AsyncGenerator[EntryService, None]:
     async with PostgresDB() as db:
         yield EntryService(db)
 
-@router.post("/entries/")
+@router.post("/entries")
 async def create_entry(request: Request, entry: dict, entry_service: EntryService = Depends(get_entry_service)):
 
     entry_data = {
@@ -47,14 +47,14 @@ async def create_entry(request: Request, entry: dict, entry_service: EntryServic
 async def get_all_entries(entry_service: EntryService = Depends(get_entry_service)):
     # TODO: Implement get all entries endpoint
     # Hint: Use PostgresDB and EntryService like other endpoints
-    enteries = entry_service.get_all_entries
-    return enteries
+    entries = await entry_service.get_all_entries()
+    return entries
 
 @router.get("/entries/{entry_id}")
 async def get_entry(entry_id: str, entry_service: EntryService = Depends(get_entry_service)):
     # TODO: Implement get single entry endpoint
     # Hint: Return 404 if entry not found
-    result = entry_service.get_entry(entry_id)
+    result = await entry_service.get_entry(entry_id)
     if not result:
 
         raise HTTPException(status_code=404, detail="Entry not found")
@@ -78,11 +78,12 @@ async def update_entry(entry_id: str, entry_update: dict):
 async def delete_entry(entry_id: str, entry_service: EntryService = Depends(get_entry_service)):
     # TODO: Implement delete entry endpoint
     # Hint: Return 404 if entry not found
-    delete = entry_service.delete_entry(entry_id)
-    if not delete:
+    exist = await entry_service.get_entry(entry_id)
+    if not exist:
 
         raise HTTPException(status_code=404, detail="Entry not found")
-
+   
+    await entry_service.delete_entry(entry_id)
     return {"message": "Entry deleted successfully"}
 
 @router.delete("/entries")

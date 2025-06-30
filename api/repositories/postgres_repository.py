@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from api.repositories.interface_respository import DatabaseInterface
 
+
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")

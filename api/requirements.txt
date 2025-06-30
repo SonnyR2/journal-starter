@@ -1,3 +1,4 @@
+pip install --upgrade pip
 fastapi
 uvicorn
 python-dotenv
@@ -5,3 +6,6 @@ aiohttp
 sqlalchemy
 psycopg2-binary
 asyncpg
+fastapi[standard]
+postgresql 
+postgresql-contrib

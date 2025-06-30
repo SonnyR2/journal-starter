@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field, validator
-from typing import Optional
-from datetime import datetime
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, Literal
+from datetime import datetime, timezone
 from uuid import uuid4
 
 class Entry(BaseModel):
@@ -32,21 +32,21 @@ class Entry(BaseModel):
         description="What will you study/work on tomorrow?"
     )
     created_at: Optional[datetime] = Field(
-        default_factory=datetime.datetime.now,
+        default_factory=datetime.now(timezone.utc),
         description="Timestamp when the entry was created."
     )
     updated_at: Optional[datetime] = Field(
-        default_factory=datetime.datetime.now,
+        default_factory=datetime.now(timezone.utc),
         description="Timestamp when the entry was last updated."
     )
 
-    @validator("work", "struggle", "intention", pre=True)
+    @field_validator("work", "struggle", "intention", mode='before')
     def strip_strings(cls, value: str) -> str:
         if isinstance(value, str):
             return value.strip()
         raise ValueError("Must be a string")
 
-    @validator("work", "struggle", "intention")
+    @field_validator("work", "struggle", "intention")
     def non_empty_after_strip(cls, value: str) -> str:
         if not value:
             raise ValueError("Field cannot be empty")
@@ -54,9 +54,8 @@ class Entry(BaseModel):
             raise ValueError("Field cannot be only whitespace")
         return value
 
-    version: str = Field(
+    version: Literal["v1"] = Field(
         default="v1",
-        const=True,
         description="Schema version for this entry"
     )
 
