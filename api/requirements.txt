@@ -6,5 +6,3 @@ sqlalchemy
 psycopg2-binary
 asyncpg
 fastapi[standard]
-postgresql 
-postgresql-contrib
