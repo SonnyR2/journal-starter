@@ -1,4 +1,3 @@
-pip install --upgrade pip
 fastapi
 uvicorn
 python-dotenv
